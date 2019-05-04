@@ -4,10 +4,14 @@ function init() {
   var box = getBox(1,1,1);
   var plane = getPlane(4);
 
+  plane.name = 'plane-1';
+
   box.position.y = box.geometry.parameters.height/2;
   plane.rotation.x = Math.PI/2;
+  plane.position.y = 0;
 
-  scene.add(box);
+  //Objects can be added as children of other objects. Like HTML elements.
+  plane.add(box);
   scene.add(plane);
   
   var camera = new THREE.PerspectiveCamera(
@@ -31,6 +35,9 @@ function init() {
     scene,
     camera
   );
+  update(renderer, scene, camera);
+
+  return scene;
 }
 
 function getBox(w, h, d) {
@@ -60,6 +67,25 @@ function getPlane(size) {
   return mesh;
 }
 
+function update(renderer, scene, camera) {
+  renderer.render(
+    scene,
+    camera
+  );
+
+  var plane = scene.getObjectByName('plane-1');
+  plane.rotation.y += 0.001;
+  plane.rotation.z += 0.001;
+
+  //Call this callback function on every child object of scene
+  scene.traverse((child) => {
+    child.scale.x += 0.001;
+  })
 
 
-init();
+  requestAnimationFrame(() => {
+    update(renderer, scene, camera);
+  })
+}
+
+var scene = init();
