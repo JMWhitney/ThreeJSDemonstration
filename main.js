@@ -1,6 +1,7 @@
 function init() {
   var scene = new THREE.Scene();
   var gui = new dat.GUI();
+  var clock = new THREE.Clock();
 
   var enableFog = false;
   if(enableFog) {
@@ -13,6 +14,7 @@ function init() {
   var boxGrid = getBoxGrid(10, 1.5);
   var helper = new THREE.CameraHelper(Light.shadow.camera);
   var ambientLight = getAmbientLight(1);
+  boxGrid.name = 'boxGrid';
 
   plane.name = 'plane-1';
 
@@ -35,16 +37,27 @@ function init() {
   scene.add(boxGrid);
   scene.add(helper);
   
-  var camera = new THREE.PerspectiveCamera(
+  var perspectiveCamera = new THREE.PerspectiveCamera(
     45,
     window.innerWidth/window.innerHeight,
     1,
     1000
   );
 
-  camera.position.x = 2;
-  camera.position.y = 2;
-  camera.position.z = 5;
+  var orthographicCamera = new THREE.OrthographicCamera(
+    -15,
+    15,
+    15,
+    -15,
+    1,
+    1000
+  );
+
+  var camera = perspectiveCamera;
+
+  camera.position.x = 10;
+  camera.position.y = 10;
+  camera.position.z = 10;
 
   camera.lookAt(new THREE.Vector3(0,0,0));
   
@@ -56,7 +69,7 @@ function init() {
 
   var controls = new THREE.OrbitControls(camera, renderer.domElement)
 
-  update(renderer, scene, camera, controls);
+  update(renderer, scene, camera, controls, clock);
 
   return scene;
 }
@@ -162,7 +175,7 @@ function getAmbientLight(intensity) {
   return light;
 }
 
-function update(renderer, scene, camera, controls) {
+function update(renderer, scene, camera, controls, clock) {
   renderer.render(
     scene,
     camera
@@ -170,8 +183,17 @@ function update(renderer, scene, camera, controls) {
 
   controls.update();
 
+  var timeElapsed = clock.getElapsedTime();
+
+  var boxGrid = scene.getObjectByName('boxGrid');
+  boxGrid.children.forEach((child, index) => {
+    var x = timeElapsed + index;
+    child.scale.y = (noise.simplex2(x,x) + 1.001) / 2 ;
+    child.position.y = child.scale.y/2;
+  });
+
   requestAnimationFrame(() => {
-    update(renderer, scene, camera, controls);
+    update(renderer, scene, camera, controls, clock);
   })
 }
 
