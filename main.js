@@ -3,9 +3,10 @@ function init() {
   var gui = new dat.GUI();
   var clock = new THREE.Clock();
 
-  var enableFog = false;
+  var enableFog = true;
+
   if(enableFog) {
-    scene.fog = new THREE.FogExp2(0xffffff, 0.2);
+    scene.fog = new THREE.FogExp2(0xffffff, 0.01);
   }
 
   var plane = getPlane(100);
@@ -74,6 +75,32 @@ function init() {
   cameraXRotation.rotation.x = -Math.PI/2;
   cameraYPosition.position.y = 1;
   cameraZPosition.position.z = 100;
+
+  //Control the camera animation using tween library
+  new TWEEN.Tween({ val: 100 })
+      .to({val: -50}, 12000)
+      .onUpdate(function() {
+        cameraZPosition.position.z = this.val;
+      })
+      .start();
+
+  new TWEEN.Tween({ val: -Math.PI/2})
+      .to({ val: 0 }, 8000)
+      .delay(1000)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .onUpdate(function() {
+        cameraXRotation.rotation.x = this.val;
+      })
+      .start();
+  
+  new TWEEN.Tween({ val: 0})
+  .to({ val: Math.PI/2 }, 8000)
+  .delay(1000)
+  .easing(TWEEN.Easing.Quadratic.InOut)
+  .onUpdate(function() {
+    cameraYRotation.rotation.y = this.val;
+  })
+  .start();
 
   gui.add(cameraZPosition.position, 'z', 0, 100);
   gui.add(cameraYRotation.rotation, 'y', -Math.PI, Math.PI);
@@ -205,16 +232,9 @@ function update(renderer, scene, camera, controls, clock) {
   );
 
   controls.update();
+  TWEEN.update();
 
   var timeElapsed = clock.getElapsedTime();
-
-  var cameraXRotation = scene.getObjectByName('cameraXRotation');
-  if (cameraXRotation.rotation.x < 0) {
-    cameraXRotation.rotation.x += 0.002;
-  }
-
-  var cameraZPosition = scene.getObjectByName('cameraZPosition');
-  cameraZPosition.position.z -= 0.1;
 
   var cameraZRotation = scene.getObjectByName('cameraZRotation');
   cameraZRotation.rotation.z = noise.simplex2(timeElapsed * 1.5, timeElapsed * 1.5) * 0.01;
