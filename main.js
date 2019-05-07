@@ -52,7 +52,7 @@ function init() {
   var camera = perspectiveCamera;
 
 
-    //Animation "rig"
+  //Animation "rig"
   var cameraZRotation = new THREE.Group();
   var cameraYPosition = new THREE.Group();
   var cameraZPosition = new THREE.Group();

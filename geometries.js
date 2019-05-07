@@ -1,16 +1,18 @@
 function init() {
-	var scene = new THREE.Scene();
+  var scene = new THREE.Scene();
+  var clock = new THREE.Clock();
 
 	// initialize objects
 	var planeMaterial = getMaterial('basic', 'rgb(255, 255, 255)');
-	var plane = getPlane(planeMaterial, 30, 60);
+  var plane = getPlane(planeMaterial, 50, 50);
+  plane.name = 'plane-1';
 
 	// manipulate objects
 	plane.rotation.x = Math.PI/2;
-	plane.rotation.z = Math.PI/4;
+  plane.rotation.z = Math.PI/4;
 
 	// add objects to the scene
-	scene.add(plane);
+  scene.add(plane);
 
 	// camera
 	var camera = new THREE.PerspectiveCamera(
@@ -32,7 +34,7 @@ function init() {
 
 	var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-	update(renderer, scene, camera, controls);
+	update(renderer, scene, camera, controls, clock);
 
 	return scene;
 }
@@ -75,12 +77,23 @@ function getMaterial(type, color) {
 	return selectedMaterial;
 }
 
-function update(renderer, scene, camera, controls) {
-	controls.update();
+function update(renderer, scene, camera, controls, clock) {
+  controls.update();
+
+  var elapsedTime = clock.getElapsedTime();
+  
+  var plane = scene.getObjectByName('plane-1');
+  var planeGeo = plane.geometry;
+  planeGeo.vertices.forEach(function(vertex, index) {
+    vertex.z = 2 * noise.simplex3(elapsedTime/2 + vertex.x/25, elapsedTime/2 + vertex.y/25, elapsedTime/2 + vertex.z/25);
+  });
+
+  //By default vertices dont update.
+  planeGeo.verticesNeedUpdate = true;
 
 	renderer.render(scene, camera);
 	requestAnimationFrame(function() {
-		update(renderer, scene, camera, controls);
+		update(renderer, scene, camera, controls, clock);
 	});
 }
 
