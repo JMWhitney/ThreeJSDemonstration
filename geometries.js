@@ -83,13 +83,17 @@ function update(renderer, scene, camera, controls, clock) {
   var elapsedTime = clock.getElapsedTime();
   
   var plane = scene.getObjectByName('plane-1');
-  var planeGeo = plane.geometry;
+	var planeGeo = plane.geometry;
+	
+	var timeScalar = .5;
+	var amplitudeScalar = 4;
   planeGeo.vertices.forEach(function(vertex, index) {
-    vertex.z = 2 * noise.simplex3(elapsedTime/2 + vertex.x/25, elapsedTime/2 + vertex.y/25, elapsedTime/2 + vertex.z/25);
+		vertex.z = amplitudeScalar * noise.simplex3(elapsedTime/timeScalar + vertex.x/25, elapsedTime/timeScalar + vertex.y/25, elapsedTime/timeScalar + vertex.z/25);
+		// vertex.z = Math.random();
   });
 
   //By default vertices dont update.
-  planeGeo.verticesNeedUpdate = true;
+  planeGeo.verticesNeedUpdate = false;
 
 	renderer.render(scene, camera);
 	requestAnimationFrame(function() {
