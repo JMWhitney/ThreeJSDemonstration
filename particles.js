@@ -1,5 +1,7 @@
 function init() {
-	var scene = new THREE.Scene();
+  var scene = new THREE.Scene();
+  var stats = new Stats();
+  document.body.appendChild(stats.dom);
 
 	// camera
 	var camera = new THREE.PerspectiveCamera(
@@ -39,6 +41,7 @@ function init() {
     particleMat,
   );
 
+  particleSystem.name = 'particleSystem';
   scene.add(particleSystem);
 
 	// renderer
@@ -51,18 +54,36 @@ function init() {
 
 	document.getElementById('webgl').appendChild(renderer.domElement);
 
-	update(renderer, scene, camera, controls);
+	update(renderer, scene, camera, controls, stats);
 
 	return scene;
 }
 
+function update(renderer, scene, camera, controls, stats) {
+  controls.update();
+  stats.update();
+  renderer.render(scene, camera);
+  
+  var particleSystem = scene.getObjectByName('particleSystem');
+  particleSystem.geometry.vertices.forEach(function(particle) {
+    particle.x += (Math.random() - 1) * 0.1;
+    particle.y += (Math.random() - 0.75) * 0.1;
+    particle.z += (Math.random() * 0.1);
 
-function update(renderer, scene, camera, controls) {
-	controls.update();
-	renderer.render(scene, camera);
+    if(particle.x < -50 || particle.x > 50) {
+      particle.x = 50;
+    }
+    if(particle.y < -50 || particle.y > 50) {
+      particle.y = 50;
+    }
+    if(particle.z > 50) {
+      particle.z = -50
+    }
+  })
+  particleSystem.geometry.verticesNeedUpdate = true;
 	
 	requestAnimationFrame(function() {
-		update(renderer, scene, camera, controls);
+		update(renderer, scene, camera, controls, stats);
 	});
 }
 
